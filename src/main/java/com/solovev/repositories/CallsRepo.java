@@ -31,5 +31,6 @@ public class CallsRepo {
             .with(schema);
     public CallsRepo(Path path) throws IOException {
         Call read = objectReader.readValue(path.toFile());
+        System.out.println(read);
     }
 }

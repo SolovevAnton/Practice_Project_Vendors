@@ -1,10 +1,19 @@
 package com.solovev.model;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -24,12 +33,42 @@ public class Call {
     @JsonProperty("Номер абонента")
     private long number;
     @JsonProperty("Фрод")
-    private String isFraud;
+    @JsonDeserialize(using = FraudBooleanDeSerializer.class)
+    private Boolean isFraud;
+
+    /**
+     * Class to deserialize fraud value as boolean
+     * field will be true if matches "FRAUD" otherwise;
+     */
+    static public class FraudBooleanDeSerializer extends JsonDeserializer<Boolean> {
+        @Override
+        public Boolean deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
+            return jsonParser.getText().equals("FRAUD");
+        }
+    }
+
+    /**
+     * Class to serialize fraud value to the string
+     * serializes filed as "FRAUD" if value is true "FALSE" otherwise
+     */
+    public class FraudBooleanSerializer extends JsonSerializer<Boolean> {
+        @Override
+        public void serialize(Boolean aBoolean, JsonGenerator jsonGenerator,
+                              SerializerProvider serializerProvider)
+                throws IOException, JsonProcessingException {
+
+            if(aBoolean){
+                jsonGenerator.writeString("FRAUD");
+            } else {
+                jsonGenerator.writeString("NO FRAUD");
+            }
+        }
+    }
 
     public Call() {
     }
 
-    public Call(LocalDate dateFromFileName, int id, String dateString, String vendor, long number, String isFraud) {
+    public Call(LocalDate dateFromFileName, int id, String dateString, String vendor, long number, Boolean isFraud) {
         this.dateFromFileName = dateFromFileName;
         Id = id;
         this.dateString = dateString;
@@ -78,11 +117,11 @@ public class Call {
         this.number = number;
     }
 
-    public String getIsFraud() {
+    public Boolean getFraud() {
         return isFraud;
     }
 
-    public void setIsFraud(String fraud) {
+    public void setFraud(Boolean fraud) {
         isFraud = fraud;
     }
 
