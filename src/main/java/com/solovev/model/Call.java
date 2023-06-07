@@ -1,23 +1,35 @@
 package com.solovev.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
 /**
  * Class represents a Call instance
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Call {
+    @JsonIgnore
     private LocalDate dateFromFileName;
+    @JsonProperty("№")
     private int Id;
+    @JsonProperty("Дт/Вр звонка")
     private String dateString;
+    @JsonProperty("Оператор")
     private String vendor;
+    @JsonProperty("Номер абонента")
     private long number;
-    private boolean isFraud;
+    @JsonProperty("Фрод")
+    private String isFraud;
 
     public Call() {
     }
 
-    public Call(LocalDate dateFromFileName, int id, String dateString, String vendor, long number, boolean isFraud) {
+    public Call(LocalDate dateFromFileName, int id, String dateString, String vendor, long number, String isFraud) {
         this.dateFromFileName = dateFromFileName;
         Id = id;
         this.dateString = dateString;
@@ -66,11 +78,11 @@ public class Call {
         this.number = number;
     }
 
-    public boolean getIsFraud() {
+    public String getIsFraud() {
         return isFraud;
     }
 
-    public void setFraud(boolean fraud) {
+    public void setIsFraud(String fraud) {
         isFraud = fraud;
     }
 
@@ -83,11 +95,11 @@ public class Call {
 
         if (Id != call.Id) return false;
         if (number != call.number) return false;
-        if (isFraud != call.isFraud) return false;
         if (!Objects.equals(dateFromFileName, call.dateFromFileName))
             return false;
         if (!Objects.equals(dateString, call.dateString)) return false;
-        return Objects.equals(vendor, call.vendor);
+        if (!Objects.equals(vendor, call.vendor)) return false;
+        return Objects.equals(isFraud, call.isFraud);
     }
 
     @Override
@@ -97,7 +109,7 @@ public class Call {
         result = 31 * result + (dateString != null ? dateString.hashCode() : 0);
         result = 31 * result + (vendor != null ? vendor.hashCode() : 0);
         result = 31 * result + (int) (number ^ (number >>> 32));
-        result = 31 * result + (isFraud ? 1 : 0);
+        result = 31 * result + (isFraud != null ? isFraud.hashCode() : 0);
         return result;
     }
 

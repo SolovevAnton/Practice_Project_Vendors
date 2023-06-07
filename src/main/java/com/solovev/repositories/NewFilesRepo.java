@@ -3,6 +3,7 @@ package com.solovev.repositories;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,7 +24,7 @@ public class NewFilesRepo {
      * @param path dir to check
      */
     public NewFilesRepo(Path path) throws IOException {
-        Files
+        Files //todo try with resources?
                 .walk(path,1)
                 .filter(this::check)
                 .forEach(files :: add);
@@ -37,6 +38,10 @@ public class NewFilesRepo {
      */
     private boolean check(Path path) {
         return path.getFileName().toString().matches(pattern);
+    }
+
+    public Set<Path> getFiles() {
+        return Collections.unmodifiableSet(files);
     }
 
     @Override
