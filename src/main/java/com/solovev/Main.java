@@ -17,13 +17,15 @@ import java.nio.file.Paths;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        Path all = Paths.get("TestingData");
-        Path file = Paths.get("D:\\Git\\Practice_Projects\\Operators\\TestingData\\new_data\\testing.txt");
+        Path rootDir = Paths.get("TestingData");
+        Path newDataDir = Path.of("new_data");
+        Path processedDataDir = Path.of("processed_data");
 
-        NewFilesRepo filesRepo = new NewFilesRepo(all);
+        NewFilesRepo filesRepo = new NewFilesRepo(rootDir,newDataDir);
         CallsRepo callsRepo = new CallsRepo(filesRepo.getFiles());
         ProcessedFilesRepo finalRepo = new ProcessedFilesRepo(callsRepo.getCalls());
-        finalRepo.save(all);
+
+        finalRepo.save(rootDir,processedDataDir);
 
     }
 }

@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
  * Repository to store users and save them with files
  */
 public class ProcessedFilesRepo {
-    private final Path precessedDir = Path.of("processed_data");
     private Map<String, Map<LocalDate, Set<Call>>> calls = new HashMap<>();
     /**
      * Schema used to parse this csv
@@ -59,11 +58,12 @@ public class ProcessedFilesRepo {
      * Only calls with the isFraud == true are saved
      * Calls are saved in a files with following name pattern: VENDOR_FRAUD_LIST_yyyyMMdd_*.0.txt,
      *
-     * @param parentDir where to create processed dir to create vendor folders and save files
+     * @param parentDir where to create processedDir to create vendor folders and save files
+     * @param processedDir where to store dir with vendors dirs and files
      */
-    public void save(Path parentDir) throws IOException {
+    public void save(Path parentDir, Path processedDir) throws IOException {
         for (String vendor : calls.keySet()) {
-            Path dirToSave = parentDir.resolve(precessedDir).resolve(vendor);
+            Path dirToSave = parentDir.resolve(processedDir).resolve(vendor);
             //counter for file number in vendor dir
             long counterOfFilesInVendorDir = dirToSave.toFile().exists() ?
                     Files.walk(dirToSave, 1).count() - 1 //-1 not to count directory itself
@@ -77,7 +77,7 @@ public class ProcessedFilesRepo {
                         counterOfFilesInVendorDir++); //todo what exactly pattern?
 
 
-                File fileToSave = dirToSave.resolve(fileName).toAbsolutePath().toFile();
+                File fileToSave = dirToSave.resolve(fileName).toFile();
                 fileToSave.getParentFile().mkdirs(); //todo why fails without this??
                 save(fileToSave, calls.get(vendor).get(date));
             }
