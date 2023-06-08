@@ -3,6 +3,7 @@ package com.solovev.repositories;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,18 +17,21 @@ public class NewFilesRepo {
      * Pattern with minimum check for date correctness
      */
     private final String pattern = "RE_FRAUD_LIST_20\\d{2}[01]\\d{3}_\\d{6}_\\d{5}\\.txt";
+    private final Path dirName = Paths.get("new_data");
     private final Set<Path> files = new HashSet<>();
 
     /**
-     * Adds unique files from the dir, not its sub-dirs, that matches pattern
-     *
+     * Adds unique files from the dirName, not its sub-dirs, that matches pattern
+     * If there is no subDirectory, matches dir name IO will be thrown
      * @param path dir to check
+     * @throws IOException if there is no dirName subdir in path
      */
     public NewFilesRepo(Path path) throws IOException {
+        Path pathWithDir = path.resolve(dirName);
         Files //todo try with resources?
-                .walk(path,1)
+                .walk(pathWithDir, 1)
                 .filter(this::check)
-                .forEach(files :: add);
+                .forEach(files::add);
     }
 
     /**
