@@ -1,6 +1,7 @@
 package com.solovev.repositories;
 
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.solovev.model.Call;
@@ -23,16 +24,18 @@ public class ProcessedFilesRepo {
     /**
      * Schema used to parse this csv
      */
-    private CsvSchema schema = CsvSchema.emptySchema()
-            .withColumnSeparator('|')
+    private static CsvSchema schema = new CsvMapper() //todo how to add empty raw?
+            .schemaFor(Call.class)
             .withHeader()
-            .withSkipFirstDataRow(true);
+            .withColumnSeparator('|')
+            .withSkipFirstDataRow(true)
+            .withoutQuoteChar();
     /**
      * CSV mapper with this schema
      */
-    private ObjectWriter objectWriter = new CsvMapper()
+    private static ObjectWriter objectWriter = new CsvMapper()
             .findAndRegisterModules()
-            .writerFor(Call.class)
+            .writer()
             .with(schema);
 
     /**
@@ -55,6 +58,7 @@ public class ProcessedFilesRepo {
      * Saves Calls in ths repo in processed dir, in a subdir with vendor name
      * Only calls with the isFraud == true are saved
      * Calls are saved in a files with following name pattern: VENDOR_FRAUD_LIST_yyyyMMdd_*.0.txt,
+     *
      * @param parentDir where to create processed dir to create vendor folders and save files
      */
     public void save(Path parentDir) throws IOException {
@@ -62,29 +66,33 @@ public class ProcessedFilesRepo {
             Path dirToSave = parentDir.resolve(precessedDir).resolve(vendor);
             //counter for file number in vendor dir
             long counterOfFilesInVendorDir = dirToSave.toFile().exists() ?
-                    Files.walk(dirToSave,1).count()
+                    Files.walk(dirToSave, 1).count() - 1 //-1 not to count directory itself
                     : 0;
 
             for (LocalDate date : calls.get(vendor).keySet()) {
-                String fileName = vendor.toUpperCase() +
-                        "_FRAUD_LIST_" +
-                        date.format(DateTimeFormatter.ofPattern("yyyyMMdd")) +
-                        "_*." + counterOfFilesInVendorDir++ +".txt";
 
-                dirToSave = dirToSave.resolve(fileName);
-                save(dirToSave.toFile(),calls.get(vendor).get(date));
+                String fileName = String.format("%s_FRAUD_LIST_%s_%d.txt",
+                        vendor.toUpperCase(),
+                        date.format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                        counterOfFilesInVendorDir++); //todo what exactly pattern?
+
+
+                File fileToSave = dirToSave.resolve(fileName).toAbsolutePath().toFile();
+                fileToSave.getParentFile().mkdirs(); //todo why fails without this??
+                save(fileToSave, calls.get(vendor).get(date));
             }
         }
     }
 
     /**
      * Method to save given collection of calls to the given file in csv format with csv schema given in class
-     * @param fileToSave file to save calls
+     *
+     * @param fileToSave     file to save calls
      * @param callCollection calls to save
      */
     public void save(File fileToSave, Collection<Call> callCollection) throws IOException {
         Set<Call> filteredCalls = callCollection.stream().filter(Call::getFraud).collect(Collectors.toSet());
-        objectWriter.writeValue(fileToSave,filteredCalls);
+         objectWriter.writeValues(fileToSave).writeAll(filteredCalls).close();
     }
 
 

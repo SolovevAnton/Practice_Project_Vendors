@@ -3,6 +3,7 @@ package com.solovev.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -22,21 +23,27 @@ import java.util.Objects;
  * Class represents a Call instance
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({ "№",
+        "Дт/Вр звонка",
+        "Оператор",
+        "Номер абонента",
+        "Фрод"
+})
 public class Call {
     @JsonIgnore
     private LocalDate dateFromFileName;
     @JsonProperty("№")
-    private int Id;
+    private int id;
     @JsonProperty("Дт/Вр звонка")
     private String dateString;
     @JsonProperty("Оператор")
     private String vendor;
     @JsonProperty("Номер абонента")
     private long number;
-    @JsonProperty("Фрод")
+    @JsonProperty(value="Фрод")
     @JsonDeserialize(using = FraudBooleanDeSerializer.class)
     @JsonSerialize(using = FraudBooleanSerializer.class)
-    private Boolean isFraud;
+    private Boolean fraud; //todo solve problem with fraud
 
     /**
      * Class to deserialize fraud value as boolean
@@ -53,7 +60,7 @@ public class Call {
      * Class to serialize fraud value to the string
      * serializes filed as "FRAUD" if value is true "FALSE" otherwise
      */
-    public class FraudBooleanSerializer extends JsonSerializer<Boolean> {
+    static public class FraudBooleanSerializer extends JsonSerializer<Boolean> {
         @Override
         public void serialize(Boolean aBoolean, JsonGenerator jsonGenerator,
                               SerializerProvider serializerProvider)
@@ -70,13 +77,13 @@ public class Call {
     public Call() {
     }
 
-    public Call(LocalDate dateFromFileName, int id, String dateString, String vendor, long number, Boolean isFraud) {
+    public Call(LocalDate dateFromFileName, int id, String dateString, String vendor, long number, Boolean fraud) {
         this.dateFromFileName = dateFromFileName;
-        Id = id;
+        this.id = id;
         this.dateString = dateString;
         this.vendor = vendor;
         this.number = number;
-        this.isFraud = isFraud;
+        this.fraud = fraud;
     }
 
     public LocalDate getDateFromFileName() {
@@ -88,11 +95,11 @@ public class Call {
     }
 
     public int getId() {
-        return Id;
+        return id;
     }
 
     public void setId(int id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getDateString() {
@@ -120,11 +127,11 @@ public class Call {
     }
 
     public Boolean getFraud() {
-        return isFraud;
+        return fraud;
     }
 
     public void setFraud(Boolean fraud) {
-        isFraud = fraud;
+        this.fraud = fraud;
     }
 
     @Override
@@ -134,23 +141,23 @@ public class Call {
 
         Call call = (Call) o;
 
-        if (Id != call.Id) return false;
+        if (id != call.id) return false;
         if (number != call.number) return false;
         if (!Objects.equals(dateFromFileName, call.dateFromFileName))
             return false;
         if (!Objects.equals(dateString, call.dateString)) return false;
         if (!Objects.equals(vendor, call.vendor)) return false;
-        return Objects.equals(isFraud, call.isFraud);
+        return Objects.equals(fraud, call.fraud);
     }
 
     @Override
     public int hashCode() {
         int result = dateFromFileName != null ? dateFromFileName.hashCode() : 0;
-        result = 31 * result + Id;
+        result = 31 * result + id;
         result = 31 * result + (dateString != null ? dateString.hashCode() : 0);
         result = 31 * result + (vendor != null ? vendor.hashCode() : 0);
         result = 31 * result + (int) (number ^ (number >>> 32));
-        result = 31 * result + (isFraud != null ? isFraud.hashCode() : 0);
+        result = 31 * result + (fraud != null ? fraud.hashCode() : 0);
         return result;
     }
 
@@ -158,11 +165,11 @@ public class Call {
     public String toString() {
         return "Call{" +
                 "dateFromFileName=" + dateFromFileName +
-                ", Id=" + Id +
+                ", Id=" + id +
                 ", dateString='" + dateString + '\'' +
                 ", vendor='" + vendor + '\'' +
                 ", number=" + number +
-                ", isFraud=" + isFraud +
+                ", isFraud=" + fraud +
                 '}';
     }
 }
