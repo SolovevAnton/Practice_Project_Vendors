@@ -43,7 +43,7 @@ public class Call {
     @JsonProperty(value="Фрод")
     @JsonDeserialize(using = FraudBooleanDeSerializer.class)
     @JsonSerialize(using = FraudBooleanSerializer.class)
-    private Boolean fraud; //todo solve problem with fraud
+    private Boolean fraud; //todo solve problem with ISfraud
 
     /**
      * Class to deserialize fraud value as boolean

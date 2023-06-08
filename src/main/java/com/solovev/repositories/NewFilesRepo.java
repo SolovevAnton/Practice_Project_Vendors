@@ -3,7 +3,6 @@ package com.solovev.repositories;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,7 +22,7 @@ public class NewFilesRepo {
      * Adds unique files from the dirName, not its sub-dirs, that matches pattern
      * If there is no subDirectory, matches dir name IO will be thrown
      *
-     * @param path rootDir
+     * @param path           rootDir
      * @param dirWithNewData dir with new files to check
      * @throws IOException if there is no dirName subdir in path
      */
@@ -47,13 +46,42 @@ public class NewFilesRepo {
 
     /**
      * deletes all the files from initial directory, and puts them in to the specified folder;
-     * If the file with the same name exists in folder gives suffics of 1,2 etc for new file
-     * @param path directory to put files
+     * If the file with the same name exists in folder adds of 1,2 etc for new file name
+     * Works oly for files named with pattern : RE_FRAUD_LIST_yyyyMMdd_000000_00000.txt
+     *
+     * @param parentDir     directory to put directory with processed files
+     * @param processedData directory to put files
      */
-    public void clear(Path path) {
+    public void save(Path parentDir, Path processedData) throws IOException {
+        Path directoryToSave = parentDir.resolve(processedData);
+        directoryToSave.toFile().mkdirs();
+        for (Path file : files) {
+            Files.move(file, fileName(file, directoryToSave));
+        }
     }
-    //private String fileName(){};
 
+    /**
+     * returns the file name
+     *
+     * @param initialName base name of the file
+     * @param dirToSearch directory to look for files with the same name
+     * @return initialName if the file name is unique in the dir, else returns initialName with used with the same file name int 1,2,3..etc before extension
+     */
+    private Path fileName(Path initialName, Path dirToSearch) throws IOException {
+        String pattern = initialName
+                .getFileName()
+                .toString().replaceAll("\\.txt", "\\\\d*\\.txt");
+        //number of files with similar name
+        long index = Files.walk(dirToSearch, 1)
+                .map(Path::getFileName)
+                .filter(path -> path.toString().matches(pattern))
+                .count();
+
+        Path finalName = index == 0 ? initialName
+                : Path.of(initialName.toString().replaceAll("\\.txt", index + "\\.txt"));
+
+        return dirToSearch.resolve(finalName.getFileName());
+    }
 
     public Set<Path> getFiles() {
         return Collections.unmodifiableSet(files);

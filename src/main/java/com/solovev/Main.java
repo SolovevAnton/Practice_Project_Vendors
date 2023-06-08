@@ -1,12 +1,5 @@
 package com.solovev;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SequenceWriter;
-import com.fasterxml.jackson.databind.type.SimpleType;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.solovev.model.Call;
 import com.solovev.repositories.CallsRepo;
 import com.solovev.repositories.NewFilesRepo;
 import com.solovev.repositories.ProcessedFilesRepo;
@@ -16,16 +9,24 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        Path rootDir = Paths.get("TestingData");
+    private static final Path ROOT_DIR = Path.of("TestingData");
+
+    /**
+     * Method to process data based on task
+     */
+    private static void workerMethod() throws IOException {
         Path newDataDir = Path.of("new_data");
         Path processedDataDir = Path.of("processed_data");
+        Path originalFilesProcessedDataDir = Path.of("processed");
 
-        NewFilesRepo filesRepo = new NewFilesRepo(rootDir,newDataDir);
-        CallsRepo callsRepo = new CallsRepo(filesRepo.getFiles());
-        ProcessedFilesRepo finalRepo = new ProcessedFilesRepo(callsRepo.getCalls());
+        NewFilesRepo initialFilesRepo = new NewFilesRepo(ROOT_DIR,newDataDir);
+        CallsRepo callsRepo = new CallsRepo(initialFilesRepo.getFiles());
+        ProcessedFilesRepo processedVendorsRepo = new ProcessedFilesRepo(callsRepo.getCalls());
 
-        finalRepo.save(rootDir,processedDataDir);
+        processedVendorsRepo.save(ROOT_DIR,processedDataDir);
+        initialFilesRepo.save(ROOT_DIR,processedDataDir.resolve(originalFilesProcessedDataDir));
+    }
+    public static void main(String[] args) {
 
     }
 }
