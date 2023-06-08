@@ -18,11 +18,11 @@ import java.util.stream.Collectors;
  * Repository to store users and save them with files
  */
 public class ProcessedFilesRepo {
-    private Map<String, Map<LocalDate, Set<Call>>> calls = new HashMap<>();
+    private final Map<String, Map<LocalDate, Set<Call>>> calls = new HashMap<>();
     /**
      * Schema used to parse this csv
      */
-    private static CsvSchema schema = new CsvMapper() //todo how to add empty raw?
+    private final CsvSchema schema = new CsvMapper() //todo how to add empty raw?
             .schemaFor(Call.class)
             .withHeader()
             .withColumnSeparator('|')
@@ -31,7 +31,7 @@ public class ProcessedFilesRepo {
     /**
      * CSV mapper with this schema
      */
-    private static ObjectWriter objectWriter = new CsvMapper()
+    private final ObjectWriter objectWriter = new CsvMapper()
             .findAndRegisterModules()
             .writer()
             .with(schema);
@@ -63,6 +63,7 @@ public class ProcessedFilesRepo {
     public void save(Path parentDir, Path processedDir) throws IOException {
         for (String vendor : calls.keySet()) {
             Path dirToSave = parentDir.resolve(processedDir).resolve(vendor);
+            dirToSave.toFile().mkdirs(); //todo why fails without this?
             //counter for file number in vendor dir
             long counterOfFilesInVendorDir = dirToSave.toFile().exists() ?
                     Files.walk(dirToSave, 1).count() - 1 //-1 not to count directory itself
@@ -75,9 +76,7 @@ public class ProcessedFilesRepo {
                         date.format(DateTimeFormatter.ofPattern("yyyyMMdd")),
                         counterOfFilesInVendorDir++); //todo what exactly pattern?
 
-
                 File fileToSave = dirToSave.resolve(fileName).toFile();
-                fileToSave.getParentFile().mkdirs(); //todo why fails without this??
                 save(fileToSave, calls.get(vendor).get(date));
             }
         }

@@ -6,7 +6,6 @@ import com.solovev.repositories.ProcessedFilesRepo;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class Main {
     private static final Path ROOT_DIR = Path.of("TestingData");

@@ -20,18 +20,18 @@ import java.util.Set;
  * Files must have pattern name RE_FRAUD_LIST_yyyyMMdd_000000_00000.txt
  */
 public class CallsRepo {
-    private Set<Call> calls = new HashSet<>();
+    private final Set<Call> calls = new HashSet<>();
     /**
      * Schema used to parse this csv
      */
-    private CsvSchema schema = CsvSchema.emptySchema()
+    private final CsvSchema schema = CsvSchema.emptySchema()
             .withColumnSeparator('|')
             .withHeader()
             .withSkipFirstDataRow(true);
     /**
      * CSV mapper with this schema
      */
-    private ObjectReader objectReader = new CsvMapper()
+    private final ObjectReader objectReader = new CsvMapper()
             .findAndRegisterModules()
             .readerFor(Call.class)
             .with(schema);
@@ -39,13 +39,13 @@ public class CallsRepo {
     /**
      * Takes collection of files and reads all calls from them
      * Call date is represented as a part of the file name
-     * @param files
-     * @throws IOException
+     * @param files to get calls from
+     * @throws IOException when file is not found
      */
     public CallsRepo(Collection<Path> files) throws IOException {
         for(Path path : files){
             MappingIterator<Call> callMappingIterator = objectReader.readValues(path.toFile());
-            //set value of next call date taken from file name and ads it to set
+            //set value of next call date taken from file name and ads nextCall to set
             while(callMappingIterator.hasNext()) {
                 Call nextCall = callMappingIterator.nextValue();
                 String dateToParse = path.getFileName().toString()
