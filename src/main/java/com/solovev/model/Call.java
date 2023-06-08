@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -34,6 +35,7 @@ public class Call {
     private long number;
     @JsonProperty("Фрод")
     @JsonDeserialize(using = FraudBooleanDeSerializer.class)
+    @JsonSerialize(using = FraudBooleanSerializer.class)
     private Boolean isFraud;
 
     /**

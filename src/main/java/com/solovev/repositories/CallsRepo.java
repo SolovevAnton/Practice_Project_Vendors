@@ -1,7 +1,5 @@
 package com.solovev.repositories;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -13,11 +11,13 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * reads and stores calls from all files in the files collection
+ * reads and stores calls from all files in the files collection.
+ * Files must have pattern name RE_FRAUD_LIST_yyyyMMdd_000000_00000.txt
  */
 public class CallsRepo {
     private Set<Call> calls = new HashSet<>();
@@ -58,6 +58,10 @@ public class CallsRepo {
                 calls.add(nextCall);
             }
         }
+    }
+
+    public Set<Call> getCalls() {
+        return Collections.unmodifiableSet(calls);
     }
 
     @Override
