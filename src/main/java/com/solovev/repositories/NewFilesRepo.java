@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Repository to store unique files from the folder, that are named like:
@@ -28,10 +29,11 @@ public class NewFilesRepo {
      */
     public NewFilesRepo(Path path, Path dirWithNewData) throws IOException {
         Path pathWithDir = path.resolve(dirWithNewData);
-        Files //todo try with resources?
-                .walk(pathWithDir, 1)
-                .filter(this::check)
-                .forEach(files::add);
+        try (Stream<Path> streamWalk = Files.walk(pathWithDir, 1)) {
+            streamWalk
+                    .filter(this::check)
+                    .forEach(files::add);
+        }
     }
 
     /**
@@ -72,10 +74,13 @@ public class NewFilesRepo {
                 .getFileName()
                 .toString().replaceAll("\\.txt", "\\\\d*\\.txt");
         //number of files with similar name
-        long index = Files.walk(dirToSearch, 1)
-                .map(Path::getFileName)
-                .filter(path -> path.toString().matches(pattern))
-                .count();
+        long index = 0L;
+        try (Stream<Path> walker = Files.walk(dirToSearch, 1)) {
+            index = walker
+                    .map(Path::getFileName)
+                    .filter(path -> path.toString().matches(pattern))
+                    .count();
+        }
 
         Path finalName = index == 0 ? initialName
                 : Path.of(initialName.toString().replaceAll("\\.txt", index + "\\.txt"));

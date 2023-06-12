@@ -43,7 +43,7 @@ public class Call {
     @JsonProperty(value="Фрод")
     @JsonDeserialize(using = FraudBooleanDeSerializer.class)
     @JsonSerialize(using = FraudBooleanSerializer.class)
-    private Boolean fraud; //todo solve problem with ISfraud
+    private Boolean fraud;
 
     /**
      * Class to deserialize fraud value as boolean
@@ -55,7 +55,6 @@ public class Call {
             return jsonParser.getText().equals("FRAUD");
         }
     }
-
     /**
      * Class to serialize fraud value to the string
      * serializes filed as "FRAUD" if value is true "FALSE" otherwise
