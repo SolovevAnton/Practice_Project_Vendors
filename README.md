@@ -14,7 +14,7 @@ Done in 7 hours
 - Information from the required file is entered into each new file by date, data clarification,only calls with FRAUD are added, grouping of data for each vendor SEPARATELY
 
 
-3. All processed files from the "new_data" folder are moved to the "processed_data\processed" folder. 
+3. All  processed files from the "new_data" folder are moved to the "processed_data\processed" folder. 
 If the folder already contains files with this name names, then there are files with the specified names according to the pattern file_name (number_starting_from_one).txt
 
 ## Example
