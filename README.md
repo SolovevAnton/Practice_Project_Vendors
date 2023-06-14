@@ -19,6 +19,7 @@ If the folder already contains files with this name names, then there are files 
 
 ## Example
 ### as is
-![img.png](img.png)
+![изображение](https://github.com/SolovevAnton/Practice_Project_Vendors/assets/121192850/cee6a11c-2721-4a79-a27c-e0349d8b1ec1)
+
 ## to be
-![img.png](img.png)
+![изображение](https://github.com/SolovevAnton/Practice_Project_Vendors/assets/121192850/c4438161-87fc-455c-8ea6-8f94c1901c82)
